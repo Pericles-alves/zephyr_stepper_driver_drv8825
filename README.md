@@ -10,7 +10,7 @@ In your app’s `west.yml`:
 manifest:
   projects:
     - name: drv8825
-      url: 
+      url: git@github.com:Pericles-alves/zephyr_stepper_driver_drv8825.git
       path: modules/drv8825
       revision: main
 ```
