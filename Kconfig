@@ -3,7 +3,7 @@ menu "DRV8825 driver"
 config DRV8825
     bool "Enable DRV8825 driver"
     default y
-	depends on DT_HAS_TI_DRV8825_ENABLED
+	#depends on DT_HAS_TI_DRV8825_ENABLED
 	select STEP_DIR_STEPPER
     help
       Enable support for the DRV8825 Stepper Motor Driver.
