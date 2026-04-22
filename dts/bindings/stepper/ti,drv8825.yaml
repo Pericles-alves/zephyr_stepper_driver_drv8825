@@ -1,0 +1,44 @@
+# SPDX-License-Identifier: Apache-2.0
+
+title: Texas Instruments DRV8825 Stepper Motor Driver
+
+description: |
+  The Texas Instruments DRV8825 is a PWM Microstepping Stepper Motor Driver solution.
+  This Binding describes the device when it is connected to the GPIO.
+
+compatible: "ti,drv8825"
+
+include:
+  - name: stepper-driver.yaml
+  - name: step-dir-timing.yaml
+
+properties:
+  step-width-ns:
+    default: 970
+
+  fault-gpios:
+    type: phandle-array
+    description: Fault pin.
+
+  sleep-gpios:
+    type: phandle-array
+    description: Sleep pin (active low).
+  
+  reset-gpios:
+    type: phandle-array
+    description: Reset pin (active low).
+
+examples:
+  - |
+    drv8825: drv8825 {
+      status = "okay";
+      compatible = "ti,drv8825";
+
+      fault-gpios = <&arduino_header 16 0>;
+      sleep-gpios = <&arduino_header 15 GPIO_ACTIVE_LOW>;
+      reset-gpios = <&arduino_header 17 GPIO_ACTIVE_LOW>;
+      en-gpios  = <&arduino_header 14 0>;
+      m0-gpios = <&mikroe_stepper_gpios 0 0>;
+      m1-gpios = <&mikroe_stepper_gpios 1 0>;
+      m2-gpios = <&mikroe_stepper_gpios 2 0>;
+    };

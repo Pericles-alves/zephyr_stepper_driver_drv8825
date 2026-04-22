@@ -1,0 +1,9 @@
+if DRV8825
+
+config LOG
+    default y
+
+config DRV8825_LOG_LEVEL
+    default 3
+
+endif
