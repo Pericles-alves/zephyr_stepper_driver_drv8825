@@ -1,6 +1,6 @@
 menu "DRV8825 driver"
 
-config STEPPER_DRV_DRV8825
+config DRV8825
     bool "Enable DRV8825 driver"
     default y
 	depends on DT_HAS_TI_DRV8825_ENABLED
@@ -8,10 +8,10 @@ config STEPPER_DRV_DRV8825
     help
       Enable support for the DRV8825 Stepper Motor Driver.
 
-config STEPPER_DRV_DRV8825_LOG_LEVEL
+config DRV8825_LOG_LEVEL
     int "Log level (0=off..4=debug)"
     range 0 4
     default 3
-    depends on STEPPER_DRV_DRV8825
+    depends on DRV8825
 
 endmenu
