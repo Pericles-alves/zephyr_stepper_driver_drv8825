@@ -1,1 +1,1 @@
-rsource "button/Kconfig"
+rsource "drivers/Kconfig"
