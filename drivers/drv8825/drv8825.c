@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <cstdint>
 #define DT_DRV_COMPAT ti_drv8825
 
 #include <zephyr/drivers/stepper/stepper.h>
@@ -98,6 +99,7 @@ int drv8825_microstep_recovery(const struct device *dev)
 
 	uint8_t m0_value = data->pin_states.m0;
 	uint8_t m1_value = data->pin_states.m1;
+	uint8_t m2_value = data->pin_states.m2;
 
 	ret = drv8825_set_microstep_pin(dev, &config->common.m0_pin, m0_value);
 	if (ret != 0) {
