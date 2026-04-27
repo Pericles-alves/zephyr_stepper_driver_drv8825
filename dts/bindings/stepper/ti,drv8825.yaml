@@ -27,6 +27,10 @@ properties:
   reset-gpios:
     type: phandle-array
     description: Reset pin (active low).
+  
+  m2-gpios:
+    type: phandle-array
+    description: Microstepping mode pin M2.
 
 examples:
   - |

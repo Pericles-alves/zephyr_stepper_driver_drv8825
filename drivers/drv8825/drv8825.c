@@ -30,6 +30,7 @@ struct drv8825_config {
 	struct gpio_dt_spec sleep_pin;
 	struct gpio_dt_spec fault_pin;
     struct gpio_dt_spec reset_pin;
+	struct gpio_dt_spec m2_pin;
 };
 
 /* Struct for storing the states of output pins. */
@@ -112,7 +113,7 @@ int drv8825_microstep_recovery(const struct device *dev)
 		return ret;
 	}
 
-    ret = drv8825_set_microstep_pin(dev, &config->common.m2_pin, m2_value);
+    ret = drv8825_set_microstep_pin(dev, &config->m2_pin, m2_value);
 	if (ret != 0) {
 		LOG_ERR("%s: Failed to restore microstep configuration (error: %d)", dev->name,
 			ret);
@@ -303,7 +304,7 @@ static int drv8825_set_micro_step_res(const struct device *dev,
 	uint8_t m1_value = 0;
     uint8_t m2_value = 0;
 
-	if ((config->common.m0_pin.port == NULL) || (config->common.m1_pin.port == NULL) || (config->common.m2_pin.port == NULL)) {
+	if ((config->common.m0_pin.port == NULL) || (config->common.m1_pin.port == NULL) || (config->m2_pin.port == NULL)) {
 
 		LOG_ERR("%s: Failed to set microstep resolution: microstep pins are not defined "
 			"(error: %d)",
@@ -361,7 +362,7 @@ static int drv8825_set_micro_step_res(const struct device *dev,
 		return ret;
 	}
 
-    ret = drv8825_set_microstep_pin(dev, &config->common.m2_pin, m2_value);
+    ret = drv8825_set_microstep_pin(dev, &config->m2_pin, m2_value);
 	if (ret != 0) {
 		return ret;
 	}
@@ -450,8 +451,8 @@ static int drv8825_init(const struct device *dev)
 	}
 
 	/* Configure microstep pin 2 if it is available */
-	if (config->common.m2_pin.port != NULL) {
-		ret = gpio_pin_configure_dt(&config->common.m2_pin, GPIO_OUTPUT_INACTIVE);
+	if (config->m2_pin.port != NULL) {
+		ret = gpio_pin_configure_dt(&config->m2_pin, GPIO_OUTPUT_INACTIVE);
 		if (ret != 0) {
 			LOG_ERR("%s: Failed to configure m2_pin (error: %d)", dev->name, ret);
 			return ret;
@@ -460,7 +461,7 @@ static int drv8825_init(const struct device *dev)
 	}
 
 	if ((config->common.m0_pin.port != NULL) && (config->common.m1_pin.port != NULL)\
-        && (config->common.m2_pin.port != NULL)) {
+        && (config->m2_pin.port != NULL)) {
 		ret = drv8825_set_micro_step_res(dev, data->ustep_res);
 		if (ret != 0) {
 			return ret;
@@ -504,6 +505,7 @@ static DEVICE_API(stepper, drv8825_stepper_api) = {
 		.sleep_pin = GPIO_DT_SPEC_INST_GET_OR(inst, sleep_gpios, {0}),                     \
 		.fault_pin = GPIO_DT_SPEC_INST_GET_OR(inst, fault_gpios, {0}),                     \
 		.reset_pin = GPIO_DT_SPEC_INST_GET_OR(inst, reset_gpios, {0}),                     \
+		.m2_pin = GPIO_DT_SPEC_INST_GET_OR(inst, m2_gpios, {0}),                           \
 	};                                                                                         \
                                                                                                    \
 	static struct drv8825_data drv8825_data_##inst = {                                         \
