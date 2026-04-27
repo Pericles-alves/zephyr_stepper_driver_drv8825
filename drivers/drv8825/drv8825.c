@@ -2,10 +2,8 @@
  * SPDX-FileCopyrightText: Copyright (c) 2024 Navimatix GmbH
  * SPDX-License-Identifier: Apache-2.0
  */
-
-#include <cstdint>
+#include <stdint.h>
 #define DT_DRV_COMPAT ti_drv8825
-
 #include <zephyr/drivers/stepper/stepper.h>
 #include <zephyr/drivers/gpio.h>
 #include "drv8825.h"
@@ -37,6 +35,7 @@ struct drv8825_config {
 /* Struct for storing the states of output pins. */
 struct drv8825_pin_states {
 	uint8_t sleep: 1;
+	uint8_t reset: 1;
 	uint8_t en: 1;
 	uint8_t m0: 2;
 	uint8_t m1: 2;
@@ -208,7 +207,7 @@ static int drv8825_enable(const struct device *dev)
 	k_timeout_t enable_timeout;
 	int ret;
 
-	ret = drv8825_check_en_sleep_pin(config);
+	ret = drv8825_check_en_sleep_reset_pin(config);
 	if (ret != 0) {
 		return ret;
 	}
@@ -253,7 +252,7 @@ static int drv8825_disable(const struct device *dev)
 	bool has_fault_pin = config->fault_pin.port != NULL;
 	int ret;
 
-	ret = drv8825_check_en_sleep_pin(config);
+	ret = drv8825_check_en_sleep_reset_pin(config);
 	if (ret != 0) {
 		return ret;
 	}
