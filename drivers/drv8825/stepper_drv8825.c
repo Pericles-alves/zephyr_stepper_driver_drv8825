@@ -11,7 +11,7 @@
 #include <step_dir_stepper_common.h>
 
 #include <zephyr/logging/log.h>
-LOG_MODULE_REGISTER(drv8825, CONFIG_STEPPER_LOG_LEVEL);
+LOG_MODULE_REGISTER(drv8825, CONFIG_DRV8825_LOG_LEVEL);
 
 /* Enable and wake up times of the drv8825 stepper controller family. Only after they have elapsed
  * are controller output signals guaranteed to be valid.
