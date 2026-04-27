@@ -2,3 +2,5 @@ name: drv8825
 build:
   cmake: .
   kconfig: Kconfig
+  settings:
+    dts_root: .

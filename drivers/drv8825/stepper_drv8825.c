@@ -7,7 +7,7 @@
 
 #include <zephyr/drivers/stepper/stepper.h>
 #include <zephyr/drivers/gpio.h>
-#include <zephyr/drivers/stepper/stepper_drv8825.h>
+#include "stepper_drv8825.h"
 #include <step_dir_stepper_common.h>
 
 #include <zephyr/logging/log.h>
