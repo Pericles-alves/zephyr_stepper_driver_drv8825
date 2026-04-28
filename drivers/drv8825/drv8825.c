@@ -222,6 +222,11 @@ static int drv8825_enable(const struct device *dev)
 		return ret;
 	}
 
+	ret = drv8825_set_reset_pin_state(dev, true);
+    if (ret != 0) {
+        return ret;
+    }
+
 	if (has_enable_pin) {
 		enable_timeout = DRV8825_ENABLE_TIME;
 	}
