@@ -217,7 +217,7 @@ static int drv8825_enable(const struct device *dev)
 		return ret;
 	}
 
-	ret = drv8825_set_en_pin_state(dev, true);
+	ret = drv8825_set_en_pin_state(dev, false);
 	if (ret != 0) {
 		return ret;
 	}
@@ -267,7 +267,7 @@ static int drv8825_disable(const struct device *dev)
 		return ret;
 	}
 
-	ret = drv8825_set_en_pin_state(dev, false);
+	ret = drv8825_set_en_pin_state(dev, true);
 	if (ret != 0) {
 		return ret;
 	}
