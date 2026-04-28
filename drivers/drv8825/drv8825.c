@@ -203,6 +203,7 @@ static int drv8825_enable(const struct device *dev)
 	struct drv8825_data *data = dev->data;
 	bool has_enable_pin = config->common.en_pin.port != NULL;
 	bool has_sleep_pin = config->sleep_pin.port != NULL;
+	bool has_reset_pin = config->reset_pin.port != NULL;
 	bool has_fault_pin = config->fault_pin.port != NULL;
 	k_timeout_t enable_timeout;
 	int ret;
@@ -231,7 +232,7 @@ static int drv8825_enable(const struct device *dev)
 		enable_timeout = DRV8825_ENABLE_TIME;
 	}
 
-	if (has_sleep_pin) {
+	if (has_sleep_pin || has_reset_pin) {
 		enable_timeout = DRV8825_WAKE_UP_TIME;
 	}
 
