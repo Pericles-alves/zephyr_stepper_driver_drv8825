@@ -54,8 +54,6 @@ struct drv8825_data {
 	void *fault_cb_user_data;
 	bool fault_cb_registered;
     uint32_t fault_irq_count;
-	bool fault_cb_registered;
-    uint32_t fault_irq_count;
 };
 
 STEP_DIR_STEPPER_STRUCT_CHECK(struct drv8825_config);
@@ -293,17 +291,6 @@ static int drv8825_disable(const struct device *dev)
     }
 
 	if (has_fault_pin) {
-		if(!data->fault_cb_registered){
-			LOG_WRN("%s: fault callback already removed",dev->name);	
-		}
-		else{
-			ret = gpio_remove_callback_dt(&config->fault_pin, &data->fault_cb_data);
-			if (ret != 0) {
-				LOG_ERR("%s: Failed to remove fault callback (error: %d)", dev->name, ret);
-				return ret;
-			}
-			data->fault_cb_registered = false;
-			LOG_INF("%s: fault callback removed",dev->name);
 		if(!data->fault_cb_registered){
 			LOG_WRN("%s: fault callback already removed",dev->name);	
 		}
