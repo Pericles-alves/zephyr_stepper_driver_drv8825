@@ -168,7 +168,7 @@ static int drv8825_set_sleep_pin_state(const struct device *dev, bool enable)
 	bool has_sleep_pin = config->sleep_pin.port != NULL;
 
 	if (has_sleep_pin) {
-		ret = gpio_pin_set_dt(&config->sleep_pin, !enable);
+		ret = gpio_pin_set_dt(&config->sleep_pin, enable);
 		if (ret != 0) {
 			LOG_ERR("%s: Failed to set sleep_pin (error: %d)", dev->name, ret);
 			return ret;
@@ -187,7 +187,7 @@ static int drv8825_set_reset_pin_state(const struct device *dev, bool enable)
 	bool has_reset_pin = config->reset_pin.port != NULL;
 
 	if (has_reset_pin) {
-		ret = gpio_pin_set_dt(&config->reset_pin, !enable);
+		ret = gpio_pin_set_dt(&config->reset_pin, enable);
 		if (ret != 0) {
 			LOG_ERR("%s: Failed to set reset_pin (error: %d)", dev->name, ret);
 			return ret;
@@ -225,7 +225,7 @@ static int drv8825_enable(const struct device *dev)
 		return ret;
 	}
 
-	ret = drv8825_set_reset_pin_state(dev, true);
+	ret = drv8825_set_reset_pin_state(dev, false);
     if (ret != 0) {
         return ret;
     }
@@ -275,17 +275,17 @@ static int drv8825_disable(const struct device *dev)
 		return ret;
 	}
 
-	ret = drv8825_set_sleep_pin_state(dev, false);
+	ret = drv8825_set_sleep_pin_state(dev, true);
 	if (ret != 0) {
 		return ret;
 	}
 
-	ret = drv8825_set_en_pin_state(dev, false);
+	ret = drv8825_set_en_pin_state(dev, true);
 	if (ret != 0) {
 		return ret;
 	}
 
-    ret = drv8825_set_reset_pin_state(dev, false);
+    ret = drv8825_set_reset_pin_state(dev, true);
     if (ret != 0) {
         return ret;
     }
