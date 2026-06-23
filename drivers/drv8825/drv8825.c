@@ -52,6 +52,8 @@ struct drv8825_data {
 	struct gpio_callback fault_cb_data;
 	stepper_event_cb_t fault_cb;
 	void *fault_cb_user_data;
+	bool fault_cb_registered;
+    uint32_t fault_irq_count;
 };
 
 STEP_DIR_STEPPER_STRUCT_CHECK(struct drv8825_config);
@@ -241,10 +243,19 @@ static int drv8825_enable(const struct device *dev)
 		 * proper state.
 		 */
 		k_sleep(enable_timeout);
-		ret = gpio_add_callback_dt(&config->fault_pin, &data->fault_cb_data);
-		if (ret != 0) {
-			LOG_ERR("%s: Failed to add fault callback (error: %d)", dev->name, ret);
-			return ret;
+
+		if(!data->fault_cb_registered){
+			ret = gpio_add_callback_dt(&config->fault_pin, &data->fault_cb_data);
+			if (ret != 0) {
+				LOG_ERR("%s: Failed to add fault callback (error: %d)", dev->name, ret);
+				return ret;
+			}
+			LOG_INF("%s: fault callback registered (%p)",
+					dev->name,
+					&data->fault_cb_data);
+		}
+		else{
+			LOG_WRN("%s: fault callback already registered",dev->name);
 		}
 	}
 
@@ -279,10 +290,17 @@ static int drv8825_disable(const struct device *dev)
     }
 
 	if (has_fault_pin) {
-		ret = gpio_remove_callback_dt(&config->fault_pin, &data->fault_cb_data);
-		if (ret != 0) {
-			LOG_ERR("%s: Failed to remove fault callback (error: %d)", dev->name, ret);
-			return ret;
+		if(!data->fault_cb_registered){
+			LOG_WRN("%s: fault callback already removed",dev->name);	
+		}
+		else{
+			ret = gpio_remove_callback_dt(&config->fault_pin, &data->fault_cb_data);
+			if (ret != 0) {
+				LOG_ERR("%s: Failed to remove fault callback (error: %d)", dev->name, ret);
+				return ret;
+			}
+			data->fault_cb_registered = false;
+			LOG_INF("%s: fault callback removed",dev->name);
 		}
 	}
 
@@ -391,20 +409,59 @@ static int drv8825_get_micro_step_res(const struct device *dev,
 
 void fault_event(const struct device *dev, struct gpio_callback *cb, uint32_t pins)
 {
+    if (cb == NULL) {
+        LOG_ERR("FAULT IRQ with NULL callback");
+        return;
+    }
+
 	struct drv8825_data *data = CONTAINER_OF(cb, struct drv8825_data, fault_cb_data);
 
-	if (data->fault_cb != NULL) {
-		data->fault_cb(data->dev, STEPPER_EVENT_FAULT_DETECTED,
+    if (data == NULL) {
+        LOG_ERR("FAULT IRQ invalid container");
+        return;
+    }
+
+	if (cb != &data->fault_cb_data) {
+        LOG_ERR("FAULT IRQ callback corruption cb=%p expected=%p",
+                cb,
+                &data->fault_cb_data);
+        return;
+    }
+	data->fault_irq_count++;
+
+	if ((data->fault_irq_count % 100) == 0) {
+        LOG_WRN("%s: %u fault IRQs",
+                data->dev ? data->dev->name : "unknown",
+                data->fault_irq_count);
+    }
+
+	LOG_DBG("%s: FAULT IRQ pins=0x%08x count=%u",
+            data->dev ? data->dev->name : "unknown",
+            pins,
+            data->fault_irq_count);
+
+    if (data->fault_cb == NULL) {
+        LOG_WRN("%s: Fault IRQ but no user callback",
+                data->dev ? data->dev->name : "unknown");
+        return;
+    }
+
+    if (data->dev == NULL) {
+        LOG_ERR("FAULT IRQ with NULL device pointer");
+        return;
+    }
+
+	data->fault_cb(data->dev, STEPPER_EVENT_FAULT_DETECTED,
 			data->fault_cb_user_data);
-	} else {
-		LOG_WRN_ONCE("%s: Fault pin triggered but no callback is set", dev->name);
-	}
 }
 
 static int drv8825_init(const struct device *dev)
 {
 	const struct drv8825_config *const config = dev->config;
 	struct drv8825_data *const data = dev->data;
+	data->dev = dev;
+	data->fault_cb_registered = false;
+	data->fault_irq_count = 0;
 	int ret;
 
 	/* Configure sleep pin if it is available */
@@ -518,6 +575,8 @@ static DEVICE_API(stepper, drv8825_stepper_api) = {
 	static struct drv8825_data drv8825_data_##inst = {                                         \
 		.ustep_res = DT_INST_PROP(inst, micro_step_res),                                   \
 		.dev = DEVICE_DT_INST_GET(inst),                                                   \
+		.fault_cb_register = false,														   \
+		.fault_irq_count = 0,															   \
 	};                                                                                         \
                                                                                                    \
 	DEVICE_DT_INST_DEFINE(inst, &drv8825_init, NULL, &drv8825_data_##inst,                     \
