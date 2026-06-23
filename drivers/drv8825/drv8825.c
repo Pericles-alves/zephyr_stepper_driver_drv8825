@@ -576,7 +576,7 @@ static DEVICE_API(stepper, drv8825_stepper_api) = {
 	static struct drv8825_data drv8825_data_##inst = {                                         \
 		.ustep_res = DT_INST_PROP(inst, micro_step_res),                                   \
 		.dev = DEVICE_DT_INST_GET(inst),                                                   \
-		.fault_cb_register = false,														   \
+		.fault_cb_registered = false,														   \
 		.fault_irq_count = 0,															   \
 	};                                                                                         \
                                                                                                    \
